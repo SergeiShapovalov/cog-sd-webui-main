@@ -306,20 +306,17 @@ class Predictor(BasePredictor):
         if len(lora_weights_list) != len(lora_files):
             lora_weights_list = [1.0] * len(lora_files)
         
-        # Создаем строку с LoRA для промпта в формате <lora:имя_файла:вес>
-        lora_prompt_parts = []
+        # Подготавливаем LoRA для добавления в alwayson_scripts
+        lora_args = []
         for i, (lora_path, weight) in enumerate(zip(lora_files, lora_weights_list)):
             lora_name = os.path.basename(lora_path)
             # Удаляем расширение .safetensors из имени файла
             if lora_name.endswith('.safetensors'):
                 lora_name = lora_name[:-12]
-            lora_prompt_parts.append(f"<lora:{lora_name}:{weight:.2f}>")
-            print(f"Добавляем LoRA в промпт: <lora:{lora_name}:{weight:.2f}>")
-        
-        # Добавляем LoRA в начало промпта
-        lora_prompt = " ".join(lora_prompt_parts)
-        if lora_prompt:
-            prompt = f"{lora_prompt} {prompt}"
+            # Добавляем [имя_файла, вес_для_unet, вес_для_text_encoder]
+            # Используем одинаковый вес для UNet и Text Encoder
+            lora_args.append([lora_name, float(weight), float(weight)])
+            print(f"Добавляем LoRA в alwayson_scripts: {lora_name}, вес: {weight}")
         
         payload = {
             # "init_images": [encoded_image],
@@ -343,10 +340,15 @@ class Predictor(BasePredictor):
             "hr_additional_modules": [],  # Добавляем пустой список для hr_additional_modules, чтобы избежать ошибки
         }
         
-        # LoRA уже добавлены в промпт в формате <lora:имя_файла:вес>
-        # Нет необходимости добавлять их в payload отдельно
+        # LoRA добавлены в alwayson_scripts для правильной обработки
 
         alwayson_scripts = {}
+
+        # Добавляем LoRA в alwayson_scripts, если они есть
+        if lora_args:
+            alwayson_scripts["sd_forge_lora"] = {
+                "args": lora_args
+            }
 
         if enable_adetailer:
             alwayson_scripts["ADetailer"] = {
