@@ -128,7 +128,7 @@ class Predictor(BasePredictor):
         shared.opts.set('forge_preset', 'flux')
         
         # Устанавливаем unet тип на 'Automatic' для Flux
-        shared.opts.set('forge_unet_storage_dtype', 'Automatic')
+        shared.opts.set('forge_unet_storage_dtype', 'bnb-nf4')
         
         # Устанавливаем чекпоинт
         shared.opts.set('sd_model_checkpoint', 'flux1DevHyperNF4Flux1DevBNB_flux1DevHyperNF4.safetensors')
