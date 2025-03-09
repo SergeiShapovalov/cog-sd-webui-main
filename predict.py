@@ -346,7 +346,7 @@ class Predictor(BasePredictor):
 
         # Добавляем LoRA в alwayson_scripts, если они есть
         if lora_args:
-            alwayson_scripts["sd_forge_lora"] = {
+            alwayson_scripts["LoRA"] = {
                 "args": lora_args
             }
 
